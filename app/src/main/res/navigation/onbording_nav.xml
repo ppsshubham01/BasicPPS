@@ -124,8 +124,9 @@
         <action
             android:id="@+id/action_mainScreenFragment_to_chatLayoutFragment"
             app:destination="@id/chatLayoutFragment"
-            app:popUpTo="@id/mainScreenFragment"
-            app:popUpToInclusive="true" />
+
+            app:popUpToInclusive="true"
+            />
         <action
             android:id="@+id/action_mainScreenFragment_to_loggedin"
             app:destination="@id/loggedin"

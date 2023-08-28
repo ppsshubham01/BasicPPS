@@ -5,6 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_gravity="start"
     android:gravity="start"
+    android:layout_marginRight="50dp"
+
     android:orientation="vertical"
 
     >
@@ -15,9 +17,10 @@
         android:orientation="horizontal"
         android:background="@drawable/receive_drawable"
         android:padding="15dp"
-        android:layout_margin="20dp"
-
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
         >
+
         <TextView
             android:id="@+id/receiverMSG"
             android:layout_width="match_parent"
@@ -26,6 +29,7 @@
             android:textColor="@color/black"
             android:textStyle="bold|normal"
             android:textSize="16sp"
+            android:padding="5dp"
             android:textAlignment="textStart"
             />
     </LinearLayout>

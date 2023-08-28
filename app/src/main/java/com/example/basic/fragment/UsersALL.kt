@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.basic.R
@@ -71,12 +73,17 @@ class UsersALL : Fragment(), UserAdapter.OnItemClickListener {
         binding.VerticalRV.layoutManager = layoutManager
         binding.VerticalRV.adapter = userAdapter
 
+
         return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().navigate(R.id.action_usersALL_to_mainScreenFragment)
+        }
+
 //getusers data/Information Firebase
 
         database!!.reference.child("users")

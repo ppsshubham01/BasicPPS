@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="end"
     android:gravity="end"
+    android:layout_marginLeft="50dp"
     android:orientation="vertical"
 
     >
@@ -15,7 +16,8 @@
         android:orientation="horizontal"
         android:background="@drawable/send_drawable"
         android:padding="15dp"
-        android:layout_margin="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
 
         >
         <TextView
@@ -24,8 +26,13 @@
             android:layout_height="wrap_content"
             android:text="@string/app_name"
             android:textColor="@color/black"
-            android:textStyle="bold|normal"
+            android:textStyle="normal"
             android:textSize="16sp"
+            android:paddingEnd="3dp"
+            android:paddingStart="5dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="2dp"
+
             android:textAlignment="textStart"
             />
 

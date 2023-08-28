@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -70,7 +71,8 @@ class ChatLayoutFragment : Fragment() {
 
 
         binding.name.text = name
-        Glide.with(this).load(profile).placeholder(R.drawable.icimage_placeholder) .into(binding.profile01)
+        Glide.with(this).load(profile).placeholder(R.drawable.icimage_placeholder)
+            .into(binding.profile01)
 
         //....... Retrieving user's presence status from Firebase
         database.reference.child("presence").child(receiverUID)
@@ -86,12 +88,28 @@ class ChatLayoutFragment : Fragment() {
                         }
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {}
             })
 
+
+//        // Create an OnBackPressedCallback to handle the back button press
+//        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+//            override fun handleOnBackPressed() {
+//
+////                requireActivity().supportFragmentManager.popBackStack()
+//                findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
+//            }
+//        }
+//        requireActivity().onBackPressedDispatcher.addCallback(
+//            viewLifecycleOwner,
+//            onBackPressedCallback
+//        )
+
         binding.imageViewBack.setOnClickListener {
-            findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
-            requireActivity().finish()
+//            requireActivity().supportFragmentManager.popBackStack()
+            findNavController().popBackStack()
+//            findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
         }
 
         conversationRoom = sendUID + "_" + receiverUID
@@ -101,7 +119,7 @@ class ChatLayoutFragment : Fragment() {
         binding.ChatRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.ChatRecyclerView.adapter = adapter
 
-        Log.d("sendroom","${conversationRoom}")
+        Log.d("sendroom", "${conversationRoom}")
         // Chats Messages From Database
 
         database.reference.child("conversations")
@@ -125,7 +143,8 @@ class ChatLayoutFragment : Fragment() {
                     TODO("Not yet implemented")
                 }
             })
-            sendmsg()
+        sendmsg()
+        receiveMsg()
 
 
 //..Attaching an image
@@ -149,7 +168,7 @@ class ChatLayoutFragment : Fragment() {
                 messageId = null,
                 message = messageTxt,
                 senderId = sendUID,
-                receiverId =receiverUID,
+                receiverId = receiverUID,
                 imageUrl = "",
                 timestamp = date.time
             )
@@ -178,9 +197,7 @@ class ChatLayoutFragment : Fragment() {
             }
             Log.d("ChatLayoutFragment","sendRoom: ${conversationRoom} ")
 
-
-
-// .............................................................Storing the message in the sender and receiver chat rooms
+// ............................................................Storing the message in the sender and receiver chat rooms
             database.reference.child("conversations").child(conversationRoom!!).child(messageKey!!).child(randomKey!!)
                 .setValue(message).addOnSuccessListener {
 
@@ -188,6 +205,8 @@ class ChatLayoutFragment : Fragment() {
         }
     }
     private fun receiveMsg(){
+
+
 
     }
 
@@ -202,7 +221,7 @@ class ChatLayoutFragment : Fragment() {
                     val calendar = Calendar.getInstance()
 
                     // Create a reference to the Firebase Storage location for storing the image
-                    val reference = storage.reference.child("chats").child(calendar.timeInMillis.toString() + "")
+                    val reference = storage.reference.child("conversations").child(calendar.timeInMillis.toString() + "")
                     dialog.show()
 
                     // Upload the selected image to Firebase Storage
@@ -254,6 +273,8 @@ class ChatLayoutFragment : Fragment() {
         }
     }
 
+
+
     override fun onResume() {
         super.onResume()
         val currentId = FirebaseAuth.getInstance().uid
@@ -266,6 +287,16 @@ class ChatLayoutFragment : Fragment() {
         val currentId = FirebaseAuth.getInstance().uid
         database.reference.child("presence")
             .child(currentId!!).setValue("Offline")
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+
+        binding.imageViewBack.setOnClickListener {
+            findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
+        }
+
+
     }
 }
 
