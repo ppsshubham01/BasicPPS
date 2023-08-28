@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".fragment.OnBoardingFragment"
+    android:background="@color/md_green_500"
+    >
+
+
+    <com.airbnb.lottie.LottieAnimationView
+
+        android:id="@+id/image_OnBording"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
+        android:layout_margin="30dp"
+        android:scaleType="centerCrop"
+        app:lottie_rawRes="@raw/lottie_delivery_boy_bumpy_ride"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        />
+    <LinearLayout
+        android:layout_marginTop="240dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
+        android:orientation="vertical"
+        android:padding="30dp"
+        android:layout_alignParentBottom="true"
+        >
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_onboarding_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome to Onboarding App !"
+            android:textSize="19sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_marginBottom="10dp"
+            />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_onboarding_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Here is an open-source project which shows sweet original onboarding ViewPagers that follows Material Design Guidelines"
+            android:textSize="14sp"
+            android:textColor="@color/md_grey_100"
+            />
+    </LinearLayout>
+
+</RelativeLayout>

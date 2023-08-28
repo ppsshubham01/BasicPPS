@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/onbording_nav"
+    app:startDestination="@id/onBoardingViewpagerFragment">
+    <fragment
+        android:id="@+id/onBoardingViewpagerFragment"
+        android:name="com.example.basic.fragment.OnBoardingViewpagerFragment"
+        android:label="fragment_viewpager2"
+        tools:layout="@layout/fragment_viewpager2">
+        <action
+            android:id="@+id/action_viewpager_to_loggedin"
+            app:destination="@id/loggedin"
+            app:popUpTo="@id/onbording_nav"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/loggedin"
+        android:name="com.example.basic.fragment.LogInFragment"
+        android:label="fragment_loggedin"
+        tools:layout="@layout/fragment_loggedin">
+        <action
+            android:id="@+id/action_loggedin_to_OTP_Activity"
+            app:destination="@id/OTP_Activity"
+            app:popUpTo="@id/loggedin"
+            app:popUpToInclusive="true"></action>
+        <action
+            android:id="@+id/action_loggedin_to_manualGmailLogInFragment"
+            app:destination="@id/manualGmailLogInFragment"
+            app:popUpTo="@id/loggedin"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_loggedin_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment"
+            app:popUpTo="@id/loggedin"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_loggedin_to_tempFragment"
+            app:destination="@id/tempFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/OTP_Activity"
+        android:name="com.example.basic.fragment.OTPFragment"
+        android:label="fragment_o_t_p__activity"
+        tools:layout="@layout/fragment_otpfragment">
+        <argument
+            android:name="phoneNumber"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="token"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="verificationId"
+            android:defaultValue=""
+            app:argType="string"
+            app:nullable="false" />
+        <action
+            android:id="@+id/action_OTP_Activity_to_tempFragment"
+            app:destination="@id/tempFragment"
+            app:popUpTo="@id/OTP_Activity"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_OTP_Activity_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment"
+            app:popUpTo="@id/loggedin"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/tempFragment"
+        android:name="com.example.basic.fragment.HomeFragment"
+        android:label="fragment_temp"
+        tools:layout="@layout/fragment_temp">
+        <action
+            android:id="@+id/action_tempFragment_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/manualGmailLogInFragment"
+        android:name="com.example.basic.fragment.ManualGmailLogInFragment"
+        android:label="fragment_manual_gmail_log_in"
+        tools:layout="@layout/fragment_manual_gmail_log_in">
+        <action
+            android:id="@+id/action_manualGmailLogInFragment_to_tempFragment"
+            app:destination="@id/tempFragment"
+            app:popUpTo="@id/manualGmailLogInFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_manualGmailLogInFragment_to_gmailLoginFragment"
+            app:destination="@id/gmailLoginFragment"
+            app:popUpTo="@id/manualGmailLogInFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_manualGmailLogInFragment_to_loggedin"
+            app:destination="@id/loggedin"
+            app:popUpTo="@id/loggedin"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/gmailLoginFragment"
+        android:name="com.example.basic.fragment.GmailLoginFragment"
+        android:label="fragment_gmail_login"
+        tools:layout="@layout/fragment_gmail_login">
+        <action
+            android:id="@+id/action_gmailLoginFragment_to_manualGmailLogInFragment"
+            app:destination="@id/manualGmailLogInFragment"
+            app:popUpTo="@id/gmailLoginFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_gmailLoginFragment_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainScreenFragment"
+        android:name="com.example.basic.fragment.MainScreenFragment"
+        android:label="fragment_main_screen"
+        tools:layout="@layout/fragment_main_screen" >
+        <action
+            android:id="@+id/action_mainScreenFragment_to_chatLayoutFragment"
+            app:destination="@id/chatLayoutFragment"
+            app:popUpTo="@id/mainScreenFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_mainScreenFragment_to_loggedin"
+            app:destination="@id/loggedin"
+            app:popUpTo="@id/onbording_nav"
+            app:popUpToInclusive="false"
+
+            />
+        <action
+            android:id="@+id/action_mainScreenFragment_to_usersALL"
+            app:destination="@id/usersALL" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatLayoutFragment"
+        android:name="com.example.basic.fragment.ChatLayoutFragment"
+        android:label="fragment_chat_layout"
+        tools:layout="@layout/fragment_chat_layout" >
+
+        <argument
+            android:name="uId"
+            app:argType="long"
+            android:defaultValue="0L" />
+        <action
+            android:id="@+id/action_chatLayoutFragment_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/usersALL"
+        android:name="com.example.basic.fragment.UsersALL"
+        android:label="fragment_users_a_l_l"
+        tools:layout="@layout/fragment_users_a_l_l" >
+        <action
+            android:id="@+id/action_usersALL_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment"
+            app:popUpTo="@id/mainScreenFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_usersALL_to_chatLayoutFragment"
+            app:popUpToInclusive="false"
+            app:popUpTo="@id/mainScreenFragment"
+            app:destination="@id/chatLayoutFragment" />
+    </fragment>
+</navigation>
