@@ -64,6 +64,7 @@ class ChatLayoutFragment : Fragment() {
         val profile = arguments?.getString("image")
         sendUID = FirebaseAuth.getInstance().currentUser!!.uid
         receiverUID = arguments?.getString("uid")!!
+//        val user = arguments?.getSerializable("user",ConversationModel::class.java)
         Log.d("ChatlayoutFragment1", receiverUID)
 
 
