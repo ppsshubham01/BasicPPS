@@ -2,12 +2,14 @@ package com.example.basic.fragment
 
 import android.app.ProgressDialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -42,6 +44,7 @@ class ChatLayoutFragment : Fragment() {
     private lateinit var receiverUID: String
 
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -57,7 +60,7 @@ class ChatLayoutFragment : Fragment() {
         dialog.setCancelable(false)
 
 //get name /profile uid
-        val name = arguments?.getString("name")
+        val name = arguments?.getString("user")
         val profile = arguments?.getString("image")
         sendUID = FirebaseAuth.getInstance().currentUser!!.uid
         receiverUID = arguments?.getString("uid")!!

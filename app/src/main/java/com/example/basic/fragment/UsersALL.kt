@@ -60,6 +60,7 @@ class UsersALL : Fragment(), UserAdapter.OnItemClickListener {
                     bundle.putString("name", user.name)
                     bundle.putString("image", user.profileImage)
                     bundle.putString("uid", user.uid)
+//                    bundle.putSerializable("user",user)
                     findNavController().navigate(
                         R.id.action_usersALL_to_chatLayoutFragment,
                         bundle
@@ -119,7 +120,6 @@ class UsersALL : Fragment(), UserAdapter.OnItemClickListener {
         val bundle = Bundle()
         bundle.putSerializable("user", user)
         val navController=findNavController()
-//        navController.popBackStack(R.id.dest_id_of_B, true)
         navController.navigate(R.id.action_usersALL_to_chatLayoutFragment, bundle)
     }
 

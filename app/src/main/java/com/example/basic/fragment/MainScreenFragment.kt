@@ -1,6 +1,5 @@
 package com.example.basic.fragment
 
-import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.os.Bundle
 import android.util.Log
@@ -24,10 +23,10 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 
-class MainScreenFragment : Fragment() , ConversationAdapter.OnItemClickListener{
+class MainScreenFragment : Fragment() , ConversationAdapter.OnItemClickListener {
 
 
-    private val TAG: String=this.javaClass.simpleName
+    private val TAG: String = this.javaClass.simpleName
     private lateinit var currentId: String
     private lateinit var binding: FragmentMainScreenBinding // Replace with your actual binding class
     private var auth: FirebaseAuth? = null
@@ -58,7 +57,6 @@ class MainScreenFragment : Fragment() , ConversationAdapter.OnItemClickListener{
             auth!!.signOut()
 
             findNavController().navigate(R.id.action_mainScreenFragment_to_loggedin)
-            Log.e("signout", "signoutMain1: ")
 
         }
 //        object : UserAdapter.OnItemClickListener {
@@ -82,14 +80,22 @@ class MainScreenFragment : Fragment() , ConversationAdapter.OnItemClickListener{
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
 
-        ConversationuserAdapter = ConversationAdapter(requireActivity(), users!!, object : ConversationAdapter.OnItemClickListener{
+        ConversationuserAdapter = ConversationAdapter(
+            requireActivity(),
+            users!!,
+            object : ConversationAdapter.OnItemClickListener {
 
-            override fun onItemClick(conversation : ConversationModel){
-                    val bundle=Bundle()
-                    bundle.putSerializable("conversation",conversation)
+                override fun onItemClick(user: ConversationModel) {
+                    val bundle = Bundle()
+                    bundle.putString("name", user.user?.name)
+                    bundle.putString("image", user.user?.profileImage)
+                    bundle.putString("uid", user.user?.uid)
+                    Log.e("signout", "${user}")
 
-                    findNavController().navigate(R.id.action_mainScreenFragment_to_chatLayoutFragment,bundle)
-            }
+                    findNavController().navigate(
+                        R.id.action_mainScreenFragment_to_chatLayoutFragment, bundle
+                    )
+                }
             })
 
 
@@ -108,40 +114,47 @@ class MainScreenFragment : Fragment() , ConversationAdapter.OnItemClickListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
                     user = snapshot.getValue(User::class.java)
                 }
+
                 override fun onCancelled(error: DatabaseError) {}
             })
 
 
         // Setting up the RecyclerView adapter and populating user conversation data
-        database!!.reference.child("users").child(FirebaseAuth.getInstance().currentUser!!.uid).child("conversations").addValueEventListener(object : ValueEventListener {
+        database!!.reference.child("users").child(FirebaseAuth.getInstance().currentUser!!.uid)
+            .child("conversations").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     users.clear()
                     for (snapshot1 in snapshot.children) {
                         Log.d(TAG, "onDataChange: $snapshot1")
-                        val conversationModel: ConversationModel= snapshot1.getValue(ConversationModel::class.java)!!
-                        conversationModel.conversationUid= snapshot1.key!!
-                        val otherUid=conversationModel.members?.first() { it!=FirebaseAuth.getInstance().uid }
+                        val conversationModel: ConversationModel =
+                            snapshot1.getValue(ConversationModel::class.java)!!
+                        conversationModel.conversationUid = snapshot1.key!!
+                        val otherUid =
+                            conversationModel.members?.first() { it != FirebaseAuth.getInstance().uid }
 
-                        database!!.reference.child("users").child(otherUid!!).addListenerForSingleValueEvent(object :ValueEventListener{
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                if (snapshot.exists()){
-                                    val user: User= snapshot.getValue(User::class.java)!!
-                                    conversationModel.user= user
-                                    users.add(conversationModel)
-                                    ConversationuserAdapter!!.notifyItemInserted(users.size-1)
+                        database!!.reference.child("users").child(otherUid!!)
+                            .addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    if (snapshot.exists()) {
+                                        val user: User = snapshot.getValue(User::class.java)!!
+                                        conversationModel.user = user
+                                        users.add(conversationModel)
+                                        ConversationuserAdapter!!.notifyItemInserted(users.size - 1)
 
+                                    }
                                 }
-                       }
-                            override fun onCancelled(error: DatabaseError) {
-                                TODO("Not yet implemented")
-                            }
-                        })
+
+                                override fun onCancelled(error: DatabaseError) {
+                                    TODO("Not yet implemented")
+                                }
+                            })
 //                        conversationModel.conuser= snapshot1
 //                         users!!.add(user)
                     }
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {}
         })
     }
@@ -152,27 +165,28 @@ class MainScreenFragment : Fragment() , ConversationAdapter.OnItemClickListener{
         database!!.reference.child("presence")
             .child(currentId!!).setValue("Online")
     }
+
     override fun onPause() {
         super.onPause()
         Log.d(TAG, "onPause: currentId: $currentId")
         database!!.reference.child("presence")
             .child(currentId).setValue("Offline")
     }
+
     /**
      * @see UserAdapter
      */
 
     override fun onItemClick(userconversation: ConversationModel) {
-        val bundle=Bundle()
-        bundle.putSerializable("conversation",userconversation)
-        findNavController().navigate(R.id.action_mainScreenFragment_to_chatLayoutFragment,bundle)
+        val bundle = Bundle()
+        bundle.getSerializable("user")
+        Log.e("signout11", "${bundle}")
+
+        findNavController().navigate(R.id.action_mainScreenFragment_to_chatLayoutFragment, bundle)
     }
 
-     fun onItemClick(use: User) {
-        val bundle=Bundle()
-        bundle.putSerializable("user",use)
-        findNavController().navigate(R.id.action_mainScreenFragment_to_chatLayoutFragment,bundle)
-    }
+
+
 
 }
 
