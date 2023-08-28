@@ -103,13 +103,8 @@ class UsersALL : Fragment(), UserAdapter.OnItemClickListener {
                         userAdapter!!.notifyDataSetChanged()
                     }
                 }
-
                 override fun onCancelled(error: DatabaseError) {}
             })
-
-
-
-
     }
 
 

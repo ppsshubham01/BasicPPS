@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.basic.R
@@ -16,6 +17,7 @@ import com.example.basic.databinding.FragmentChatLayoutBinding
 import com.example.basic.model.ConversationModel
 import com.example.basic.model.Message
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -31,7 +33,7 @@ class ChatLayoutFragment : Fragment() {
     private lateinit var conversationModel: ConversationModel
     private lateinit var binding: FragmentChatLayoutBinding
     private lateinit var adapter: MesageAdapter
-    private var messages: ArrayList<Message> = ArrayList()
+    private var messages: MutableList<Message> = ArrayList()
     private var conversationRoom: String? = null
     private lateinit var database: FirebaseDatabase
     private lateinit var storage: FirebaseStorage
@@ -54,18 +56,20 @@ class ChatLayoutFragment : Fragment() {
         dialog.setMessage("Uploading Image...!")
         dialog.setCancelable(false)
 
-//get name image uid
+//get name /profile uid
         val name = arguments?.getString("name")
         val profile = arguments?.getString("image")
         sendUID = FirebaseAuth.getInstance().currentUser!!.uid
         receiverUID = arguments?.getString("uid")!!
-        Log.d("ChatlayoutFragment", "${receiverUID}")
+        Log.d("ChatlayoutFragment1", receiverUID)
+
+
 
         binding.name.text = name
         Glide.with(this).load(profile).placeholder(R.drawable.icimage_placeholder) .into(binding.profile01)
 
         //....... Retrieving user's presence status from Firebase
-        database.reference.child("presence").child(receiverUID!!)
+        database.reference.child("presence").child(receiverUID)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
@@ -81,7 +85,10 @@ class ChatLayoutFragment : Fragment() {
                 override fun onCancelled(error: DatabaseError) {}
             })
 
-        binding.imageViewBack.setOnClickListener { requireActivity().finish() }
+        binding.imageViewBack.setOnClickListener {
+            findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
+            requireActivity().finish()
+        }
 
         conversationRoom = sendUID + "_" + receiverUID
 
@@ -92,23 +99,24 @@ class ChatLayoutFragment : Fragment() {
 
         Log.d("sendroom","${conversationRoom}")
         // Chats Messages From Database
-        database.reference.child("chats")
+
+        database.reference.child("conversations")
             .child(conversationRoom!!)
-            .child("messages")
             .addValueEventListener(object : ValueEventListener {
-//get datafrom firebase to display in chat
+                //get datafrom firebase to display in chat
                 override fun onDataChange(snapshot: DataSnapshot) {
                     messages.clear()
 
-    snapshot.children.forEach {
+                    snapshot.children.forEach {
 
-        val message: Message = it.getValue(Message::class.java)!!
-        message.messageId = it.key
-        messages.add(message)
-        Log.d("chat1","${message}")
-    }
-    adapter.notifyDataSetChanged()
-}
+                        val message: Message = it.getValue(Message::class.java)!!
+                        message.messageId = it.key
+                        messages.add(message)
+                        Log.d("chat1", "${message}")
+                    }
+                    adapter.notifyDataSetChanged()
+                }
+
                 override fun onCancelled(error: DatabaseError) {
                     TODO("Not yet implemented")
                 }
@@ -169,10 +177,10 @@ class ChatLayoutFragment : Fragment() {
 
 
 // .............................................................Storing the message in the sender and receiver chat rooms
-//            database.reference.child("chats").child(conversationRoom!!).child("messages").child(randomKey!!)
-//                .setValue(message).addOnSuccessListener {
-//
-//                }
+            database.reference.child("conversations").child(conversationRoom!!).child(messageKey!!).child(randomKey!!)
+                .setValue(message).addOnSuccessListener {
+
+                }
         }
     }
     private fun receiveMsg(){
@@ -221,22 +229,19 @@ class ChatLayoutFragment : Fragment() {
                                 lastMsgObj["lastMsg"] = message.message!!
                                 lastMsgObj["lastMsgTime"] = date.time
 
-                                database.reference.child("chats").updateChildren(lastMsgObj)
-//                                database.reference.child("chats").child(receiveRoom!!)
-////                                    .child(ChildEventListener)
-//                                    .updateChildren(lastMsgObj)
+                                database.reference.child("conversations").updateChildren(lastMsgObj)
+                                database.reference.child("conversations").child(receiverUID).updateChildren(lastMsgObj)
 
-                                // Add the message to the sender's chat messages
-//                                database.reference.child("chats").child(sendRoom!!)
-//                                    .child("messages").child(randomKey!!)
-//                                    .setValue(message).addOnSuccessListener {
-//                                        // add the message to the receiver's chat messages
-//                                        database.reference.child("chats").child(receiveRoom!!)
-//                                            .child("message").child(randomKey)
-//                                            .setValue(message).addOnSuccessListener {
-//                                                // Message added successfully
-//                                            }
-//                                    }
+// Add the message to the sender's chat messages
+                                database.reference.child("conversations").child(sendUID)
+                                    .child(randomKey!!)
+                                    .setValue(message).addOnSuccessListener {
+                                        // add the message to the receiver's chat messages
+                                        database.reference.child("conversations").child(receiverUID).child(randomKey)
+                                            .setValue(message).addOnSuccessListener {
+                                                // Message added successfully
+                                            }
+                                    }
                             }
                         }
                     }

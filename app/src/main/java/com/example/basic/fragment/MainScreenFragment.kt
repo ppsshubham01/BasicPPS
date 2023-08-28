@@ -61,18 +61,18 @@ class MainScreenFragment : Fragment() , ConversationAdapter.OnItemClickListener{
             Log.e("signout", "signoutMain1: ")
 
         }
-        object : UserAdapter.OnItemClickListener {
-            override fun onItemClick(user: User) {
-                val bundle = Bundle()
-                bundle.putString("name", user.name)
-                bundle.putString("image", user.profileImage)
-                bundle.putString("uid", user.uid)
-                findNavController().navigate(
-                    R.id.action_mainScreenFragment_to_chatLayoutFragment,
-                    bundle
-                )
-            }
-        }
+//        object : UserAdapter.OnItemClickListener {
+//            override fun onItemClick(user: User) {
+//                val bundle = Bundle()
+//                bundle.putString("name", user.name)
+//                bundle.putString("image", user.profileImage)
+//                bundle.putString("uid", user.uid)
+//                findNavController().navigate(
+//                    R.id.action_mainScreenFragment_to_chatLayoutFragment,
+//                    bundle
+//                )
+//            }
+//        }
         return binding.root
     }
 
@@ -87,6 +87,7 @@ class MainScreenFragment : Fragment() , ConversationAdapter.OnItemClickListener{
             override fun onItemClick(conversation : ConversationModel){
                     val bundle=Bundle()
                     bundle.putSerializable("conversation",conversation)
+
                     findNavController().navigate(R.id.action_mainScreenFragment_to_chatLayoutFragment,bundle)
             }
             })
