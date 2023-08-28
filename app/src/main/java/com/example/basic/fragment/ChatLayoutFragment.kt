@@ -60,7 +60,7 @@ class ChatLayoutFragment : Fragment() {
         dialog.setCancelable(false)
 
 //get name /profile uid
-        val name = arguments?.getString("user")
+        val name = arguments?.getString("name")
         val profile = arguments?.getString("image")
         sendUID = FirebaseAuth.getInstance().currentUser!!.uid
         receiverUID = arguments?.getString("uid")!!
