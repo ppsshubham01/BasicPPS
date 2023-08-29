@@ -145,12 +145,16 @@
         tools:layout="@layout/fragment_chat_layout" >
 
         <argument
-            android:name="uId"
-            app:argType="long"
-            android:defaultValue="0L" />
+            android:name= "conversation"
+            app:argType="com.example.basic.model.ConversationModel"/>
         <action
             android:id="@+id/action_chatLayoutFragment_to_mainScreenFragment"
-            app:destination="@id/mainScreenFragment" />
+            app:destination="@id/mainScreenFragment"
+            app:popUpTo="@id/mainScreenFragment"
+            app:popUpToInclusive="false"
+
+
+            />
     </fragment>
     <fragment
         android:id="@+id/usersALL"

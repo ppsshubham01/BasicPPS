@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -85,13 +86,22 @@ class MainScreenFragment : Fragment() , ConversationAdapter.OnItemClickListener 
             users!!,
             object : ConversationAdapter.OnItemClickListener {
 
-                override fun onItemClick(user: ConversationModel) {
+                override fun onItemClick(conversationModel: ConversationModel) {
                     val bundle = Bundle()
-                    bundle.putString("name", user.user?.name)
-                    bundle.putString("image", user.user?.profileImage)
-                    bundle.putString("uid", user.user?.uid)
+
+//                    val bundle =bundleOf(
+//                        "conversation" to conversationModel,
+//                        "name" to  conversationModel.user?.name,
+//                        "image" to  conversationModel.user?.profileImage,
+//                        "uid" to  conversationModel.user?.uid,
+//                    )
+                    bundle.putSerializable("conversation",conversationModel)
+                    bundle.putString("name", conversationModel.user?.name)
+                    bundle.putString("image", conversationModel.user?.profileImage)
+                    bundle.putString("uid", conversationModel.user?.uid)
                     Log.e("signout", "${user}")
 
+//                    findNavController().navigate(MainScreenFragmentDirections.actionMainScreenFragmentToChatLayoutFragment(conversationModel))
                     findNavController().navigate(
                         R.id.action_mainScreenFragment_to_chatLayoutFragment, bundle
                     )

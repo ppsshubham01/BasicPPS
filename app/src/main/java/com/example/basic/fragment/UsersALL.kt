@@ -17,6 +17,7 @@ import com.example.basic.R
 import com.example.basic.adapter.UserAdapter
 import com.example.basic.databinding.FragmentUsersALLBinding
 import com.example.basic.model.ConversationModel
+import com.example.basic.model.Message
 import com.example.basic.model.User
 import com.example.basic.utils.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
@@ -122,13 +123,46 @@ class UsersALL : Fragment(), UserAdapter.OnItemClickListener {
         // TODO: Use the ViewModel
     }
 
+
+
     override fun onItemClick(user: User) {
-        //Change fragment here
-        val bundle = Bundle()
-        bundle.putSerializable("user", user)
-        val navController=findNavController()
-        navController.navigate(R.id.action_usersALL_to_chatLayoutFragment, bundle)
+    //Change fragment here
+
+    auth?.currentUser?.uid?.let {
+        database!!.reference.child(it).child("conversations")
+//                .orderByChild("conr")
+            .orderByChild("").equ
+            .startAt(user.uid)
+            .endAt(user.uid)
+            .addValueEventListener(object : ValueEventListener {
+                //get datafrom firebase to display in chat
+                @SuppressLint("NotifyDataSetChanged")
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    Log.d(TAG, "conversation onDataChange: $snapshot")
+//                    snapshot.children.forEach {
+//                        val message: Message = it.getValue(Message::class.java)!!
+//                        message.messageId = it.key
+//                        messages.add(message)
+//                    }
+
+//                        val bundle = Bundle()
+//
+//                        bundle.putSerializable("user", user)
+//                        bundle.putSerializable("conversation", null)
+//                        bundle.putSerializable("conversation", conversationModel)
+//                        val navController=findNavController()
+//                        navController.navigate(R.id.action_usersALL_to_chatLayoutFragment, bundle)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            })
     }
+
+}
+
 
 
 }

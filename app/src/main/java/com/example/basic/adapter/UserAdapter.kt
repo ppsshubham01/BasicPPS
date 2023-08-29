@@ -28,6 +28,8 @@ class UserAdapter(var context: Context, var userList: MutableList<User>, val onI
 //.................This method binds data to the views of the ViewHolder. It gets called for each item in the list.
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val user = userList[position]
+//    val conv = userList[position
+//
         holder.binding.username.text = user.name
 
         Log.d("Profile", user.toString())
@@ -37,7 +39,7 @@ class UserAdapter(var context: Context, var userList: MutableList<User>, val onI
             .into(holder.binding.profile)
 
         holder.itemView.setOnClickListener {
-            onItemClickListener.onItemClick(user)
+            onItemClickListener.onItemClick(user )
         }
     }
 //.................This method returns the number of items in the list.

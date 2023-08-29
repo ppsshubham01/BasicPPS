@@ -1,5 +1,6 @@
 package com.example.basic.fragment
 
+import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Build
@@ -10,8 +11,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.basic.R
@@ -33,10 +36,12 @@ import java.util.Date
 
 class ChatLayoutFragment : Fragment() {
 
-    private lateinit var conversationModel: ConversationModel
+    private var conversation: ConversationModel? = null
+
+    //    private lateinit var conversationModel: ConversationModel
     private lateinit var binding: FragmentChatLayoutBinding
     private lateinit var adapter: MesageAdapter
-    private var messages: MutableList<Message> = ArrayList()
+    private var messagelist: MutableList<Message> = ArrayList()
     private var conversationRoom: String? = null
     private lateinit var database: FirebaseDatabase
     private lateinit var storage: FirebaseStorage
@@ -44,6 +49,7 @@ class ChatLayoutFragment : Fragment() {
     private lateinit var sendUID: String
     private lateinit var receiverUID: String
 
+    private val args : ChatLayoutFragmentArgs by navArgs()
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreateView(
@@ -53,7 +59,7 @@ class ChatLayoutFragment : Fragment() {
 
         binding = FragmentChatLayoutBinding.inflate(inflater, container, false)
 
-        messages = ArrayList()
+        messagelist = ArrayList()
         database = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
         dialog = ProgressDialog(requireContext())
@@ -61,6 +67,9 @@ class ChatLayoutFragment : Fragment() {
         dialog.setCancelable(false)
 
 //get name /profile uid
+        conversation = arguments?.getSerializable("conversation") as ConversationModel?
+//        conversation = args.conversation
+
         val name = arguments?.getString("name")
         val profile = arguments?.getString("image")
         sendUID = FirebaseAuth.getInstance().currentUser!!.uid
@@ -94,28 +103,30 @@ class ChatLayoutFragment : Fragment() {
 
 
 //        // Create an OnBackPressedCallback to handle the back button press
-//        val onBackPressedCallback = object : OnBackPressedCallback(true) {
-//            override fun handleOnBackPressed() {
-//
-////                requireActivity().supportFragmentManager.popBackStack()
-//                findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
-//            }
-//        }
-//        requireActivity().onBackPressedDispatcher.addCallback(
-//            viewLifecycleOwner,
-//            onBackPressedCallback
-//        )
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+
+//                requireActivity().supportFragmentManager.popBackStack()
+                findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            onBackPressedCallback
+        )
 
         binding.imageViewBack.setOnClickListener {
 //            requireActivity().supportFragmentManager.popBackStack()
-            findNavController().popBackStack()
-//            findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
+//            findNavController().popBackStack()
+            findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
         }
 
-        conversationRoom = sendUID + "_" + receiverUID
+//        database.reference.child("users").child("conversation")
+
+        conversationRoom = conversation?.conversationUid ?: (sendUID + "_" + receiverUID)
 
 //        intialized message adapter for recyclerview in layout....................................................................>>>>>>>>>>>>.#############
-        adapter = MesageAdapter(requireContext(), messages)
+        adapter = MesageAdapter(requireContext(), messagelist)
         binding.ChatRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.ChatRecyclerView.adapter = adapter
 
@@ -126,15 +137,22 @@ class ChatLayoutFragment : Fragment() {
             .child(conversationRoom!!)
             .addValueEventListener(object : ValueEventListener {
                 //get datafrom firebase to display in chat
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    messages.clear()
+                    messagelist.clear()
 
-                    snapshot.children.forEach {
+//                    snapshot.children.forEach {
+//                        val message: Message = it.getValue(Message::class.java)!!
+//                        message.messageId = it.key
+//                        messages.add(message)
+//                    }
 
-                        val message: Message = it.getValue(Message::class.java)!!
-                        message.messageId = it.key
-                        messages.add(message)
-                        Log.d("chat1", "${message}")
+                    for (snapshot1 in snapshot.children) {
+
+                        val message: Message? = snapshot1.getValue(Message::class.java)
+                        Log.d("chat1", "${snapshot1}")
+                        messagelist.add(message!!)
+                        Log.d("chat2", "${message}")
                     }
                     adapter.notifyDataSetChanged()
                 }
@@ -144,7 +162,6 @@ class ChatLayoutFragment : Fragment() {
                 }
             })
         sendmsg()
-        receiveMsg()
 
 
 //..Attaching an image
@@ -158,54 +175,83 @@ class ChatLayoutFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().navigate(R.id.action_chatLayoutFragment_to_mainScreenFragment)
+
+//            requireActivity().dispatchTouchEvent()
+        }
+    }
+
     private fun sendmsg() {
 
         // Sending a text message
         binding.msgSentBtn.setOnClickListener {
+
+
+            val conversationNode = database.reference.child("conversations").child(conversationRoom!!)
+            val messageKey = conversationNode.push().key
+
+//           create a message object
             val messageTxt: String = binding.messageBox.text.toString()
-            val date = Date()
             val message = Message(
                 messageId = null,
                 message = messageTxt,
                 senderId = sendUID,
                 receiverId = receiverUID,
                 imageUrl = "",
-                timestamp = date.time
+                timestamp = System.currentTimeMillis()
             )
-//.............................................................clearing the msgBox
-            binding.messageBox.setText("")
-//............................................................. Generating a random key for the message
-            val randomKey = database.reference.push().key
-//............................................................. Updating last message and time in the chat rooms
-            val lastMsgOBJ = HashMap<String, Any>()
-            lastMsgOBJ["lastMessage"] = message
-            lastMsgOBJ["updatedAt"] = ServerValue.TIMESTAMP
-            lastMsgOBJ["lastMsgTime"] = date.time
 
-            conversationModel=ConversationModel(lastMessage = message,updatedAt=ServerValue.TIMESTAMP, conversationUid = conversationRoom,
-                members = listOf(sendUID,receiverUID), createdAt=ServerValue.TIMESTAMP, user = null
-            )
-            val conversationNode=database.reference.child("conversations").child(conversationRoom!!)
-            val messageKey=conversationNode.push().key
+//            val lastMsgOBJ = HashMap<String, Any>()
+//            lastMsgOBJ["lastMessage"] = message
+//            lastMsgOBJ["updatedAt"] = ServerValue.TIMESTAMP
+
 
             messageKey?.let { it1 ->
-                message.messageId=messageKey
+                message.messageId = messageKey
                 conversationNode.child(it1).setValue(message)
-                database.reference.child("users").child(sendUID).child("conversations").child(conversationRoom!!).setValue(conversationModel)
-                database.reference.child("users").child(receiverUID).child("conversations").child(conversationRoom!!).setValue(conversationModel)
-
             }
-            Log.d("ChatLayoutFragment","sendRoom: ${conversationRoom} ")
+
+            //create conversation if not exist
+            if (conversation == null) {
+                conversation = ConversationModel(
+                    lastMessage = message,
+                    updatedAt = ServerValue.TIMESTAMP,
+                    conversationUid = conversationRoom,
+                    members = arrayListOf(sendUID, receiverUID),
+                    createdAt = ServerValue.TIMESTAMP,
+                    user = null
+                )
+            }
+            else{
+                conversation?.updatedAt=ServerValue.TIMESTAMP
+                conversation?.lastMessage=message
+            }
+            database.reference.child("users").child(sendUID).child("conversations")
+                .child(conversationRoom!!).setValue(conversation)
+            database.reference.child("users").child(receiverUID).child("conversations")
+                .child(conversationRoom!!).setValue(conversation)
+
+            //Updating last message and time in the chat rooms
+
+
+            Log.d("ChatLayoutFragment", "sendRoom: ${conversationRoom} ")
 
 // ............................................................Storing the message in the sender and receiver chat rooms
-            database.reference.child("conversations").child(conversationRoom!!).child(messageKey!!).child(randomKey!!)
-                .setValue(message).addOnSuccessListener {
+            database.reference.child("conversations").child(conversationRoom!!).child(messageKey!!).setValue(message).addOnSuccessListener {
 
+//                    database.reference.child("conversations").child(conversationRoom!!).child(messageKey).child(randomKey).push()
+//                        .setValue(message)
                 }
+
+            binding.messageBox.setText("")
+
         }
     }
-    private fun receiveMsg(){
 
+    private fun receiveMsg() {
 
 
     }
@@ -221,7 +267,8 @@ class ChatLayoutFragment : Fragment() {
                     val calendar = Calendar.getInstance()
 
                     // Create a reference to the Firebase Storage location for storing the image
-                    val reference = storage.reference.child("conversations").child(calendar.timeInMillis.toString() + "")
+                    val reference = storage.reference.child("conversations")
+                        .child(calendar.timeInMillis.toString() + "")
                     dialog.show()
 
                     // Upload the selected image to Firebase Storage
@@ -253,14 +300,16 @@ class ChatLayoutFragment : Fragment() {
                                 lastMsgObj["lastMsgTime"] = date.time
 
                                 database.reference.child("conversations").updateChildren(lastMsgObj)
-                                database.reference.child("conversations").child(receiverUID).updateChildren(lastMsgObj)
+                                database.reference.child("conversations").child(receiverUID)
+                                    .updateChildren(lastMsgObj)
 
 // Add the message to the sender's chat messages
                                 database.reference.child("conversations").child(sendUID)
                                     .child(randomKey!!)
                                     .setValue(message).addOnSuccessListener {
                                         // add the message to the receiver's chat messages
-                                        database.reference.child("conversations").child(receiverUID).child(randomKey)
+                                        database.reference.child("conversations").child(receiverUID)
+                                            .child(randomKey)
                                             .setValue(message).addOnSuccessListener {
                                                 // Message added successfully
                                             }
@@ -272,7 +321,6 @@ class ChatLayoutFragment : Fragment() {
             }
         }
     }
-
 
 
     override fun onResume() {
@@ -289,65 +337,8 @@ class ChatLayoutFragment : Fragment() {
             .child(currentId!!).setValue("Offline")
     }
 
-    override fun onDetach() {
-        super.onDetach()
 
-        binding.imageViewBack.setOnClickListener {
-            findNavController().navigate(ChatLayoutFragmentDirections.actionChatLayoutFragmentToMainScreenFragment())
-        }
-
-
-    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //fun sendMessage(recipientId: String, message: String) {
@@ -368,22 +359,6 @@ class ChatLayoutFragment : Fragment() {
 //    val notification = Notification("New message from ${currentUserId}", message)
 //    FirebaseMessaging.getInstance().send(notification)
 //}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //        usertypignStaus()
