@@ -131,7 +131,7 @@ class UsersALL : Fragment(), UserAdapter.OnItemClickListener {
     auth?.currentUser?.uid?.let {
         database!!.reference.child(it).child("conversations")
 //                .orderByChild("conr")
-            .orderByChild("").equ
+//            .orderByChild("").equalTo()
             .startAt(user.uid)
             .endAt(user.uid)
             .addValueEventListener(object : ValueEventListener {
